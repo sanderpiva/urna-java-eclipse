@@ -1,8 +1,6 @@
 # Urna Eletrônica
 
-Aplicação web em Java que simula uma votação. O sistema possui duas áreas de acesso: o eleitor se identifica e registra seu voto; o administrador consulta a apuração. A aplicação registra votos válidos, brancos ou nulos.
-
-> **Aviso:** projeto acadêmico para fins de estudo. Não use em eleições reais. O banco relaciona cada voto ao eleitor, portanto não há sigilo do voto; além disso, a autenticação administrativa e as credenciais padrão não oferecem segurança adequada para produção.
+Aplicação web em Java/Eclipse que simula uma votação presidencial. O sistema possui duas áreas de acesso distintas: durante a votação, o eleitor pode apenas votar e não pode consultar o andamento da apuração; o administrador pode acompanhar os resultados para garantir que o sistema de votação está operando corretamente. A aplicação autentica eleitores e registra votos válidos, brancos ou nulos.
 
 ## Tecnologias
 
