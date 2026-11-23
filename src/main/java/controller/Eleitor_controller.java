@@ -1,6 +1,7 @@
 package controller;
 
 import java.io.IOException;
+import java.sql.Date;
 import java.sql.SQLException;
 import java.util.Map;
 
@@ -8,6 +9,7 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
+import model.Eleitor;
 import model.Eleitor_model;
 
 public class Eleitor_controller {
@@ -38,34 +40,63 @@ public class Eleitor_controller {
 		}
 
 		if ("POST".equals(request.getMethod())) {
+			
 			System.out.println("[DEBUG LOGIN] Requisição POST recebida no Controller!");
 			System.out.println("[DEBUG LOGIN] Nome: " + valor(request, "nome"));
 			System.out.println("[DEBUG LOGIN] Data: " + valor(request, "data"));
 			System.out.println("[DEBUG LOGIN] CPF: " + valor(request, "cpf"));
+			
+			
+			try {
+				
+				Eleitor eleitor = new Eleitor();
+				eleitor.setNome(valor(request, "nome"));
 
-			int idEleitor = eleitorModel.autenticarEleitor(
-					valor(request, "nome"), 
-					valor(request, "data"),
-					valor(request, "zona"), 
-					valor(request, "municipio"), 
-					valor(request, "cpf"),
-					valor(request, "secao"), 
-					valor(request, "filiacao")
-					);
+				String dataStr = valor(request, "data");
+				if (dataStr.isEmpty()) {
+					throw new IllegalArgumentException("A data de nascimento é obrigatória.");
+				}
+				try {
+					eleitor.setData(Date.valueOf(dataStr));
+				} catch (IllegalArgumentException e) {
+					throw new IllegalArgumentException("Data de nascimento inválida.");
+				}
+				
+				eleitor.setZona_eleitoral(valor(request, "zona"));
+				eleitor.setMunicipio(valor(request, "municipio"));
+				eleitor.setCpf(valor(request, "cpf"));
+				eleitor.setSecao(valor(request, "secao"));
+				eleitor.setFiliacao(valor(request, "filiacao"));
 
-			System.out.println("[DEBUG LOGIN] Retorno do autenticarEleitor: " + idEleitor);
+				int idEleitor = eleitorModel.autenticarEleitor(
+						eleitor.getNome(),
+						eleitor.getData().toString(),
+						eleitor.getZona_eleitoral(),
+						eleitor.getMunicipio(),
+						eleitor.getCpf(),
+						eleitor.getSecao(),
+						eleitor.getFiliacao()
+						);
 
-			if (idEleitor > 0) {
-				System.out.println("[DEBUG LOGIN] Login com SUCESSO! Redirecionando para a urna...");
-				request.getSession(true).setAttribute("eleitor_id", idEleitor);
-				request.changeSessionId();
-				response.sendRedirect(request.getContextPath() + "/router?controller=Eleitor&acao=votar");
-				return;
+				System.out.println("[DEBUG LOGIN] Retorno do autenticarEleitor: " + idEleitor);
+
+				if (idEleitor > 0) {
+					System.out.println("[DEBUG LOGIN] Login com SUCESSO! Redirecionando para a urna...");
+					request.getSession(true).setAttribute("eleitor_id", idEleitor);
+					request.changeSessionId();
+					response.sendRedirect(request.getContextPath() + "/router?controller=Eleitor&acao=votar");
+					return;
+				}
+
+				System.out.println("[DEBUG LOGIN] Falha de autenticação. Exibindo mensagem de dados inválidos.");
+				response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+				request.setAttribute("erro", "Dados inválidos ou eleitor já votou.");
+
+			} catch (IllegalArgumentException e) {
+				response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+				request.setAttribute("erro", e.getMessage());
 			}
 
-			System.out.println("[DEBUG LOGIN] Falha de autenticação. Exibindo mensagem de dados inválidos.");
-			response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-			request.setAttribute("erro", "Dados inválidos ou eleitor já votou.");
 		}
 
 		request.getRequestDispatcher("/view/view_login_eleitor.jsp").forward(request, response);
