@@ -14,9 +14,7 @@
             <p class="erro-login"><%= request.getAttribute("erro") %></p>
         <% } %>
         
-        
-        
-        
+               
         <form class="form-login" method="post" action="router?controller=Eleitor&acao=view_login_eleitor">
             <label for="nome">Nome eleitor</label>
             <input id="nome" name="nome" type="text" autocomplete="username" required>
@@ -31,8 +29,10 @@
             <input id="municipio" name="municipio" placeholder="Cidade/UF" type="text" autocomplete="username" required>
 
             <label for="cpf">CPF</label>
-            <input id="cpf" name="cpf" type="text"  placeholder="xxxxxxxxxxx" autocomplete="username" required>
-
+            <input id="cpf" name="cpf" type="text" inputmode="numeric" maxlength="11" pattern="\d{11}"
+           		title="Informe os 11 dígitos do CPF (somente números)" placeholder="xxxxxxxxxxx"
+           		autocomplete="username" required>
+           
             <label for="secao">Seção</label>
             <input id="secao" name="secao" type="text" autocomplete="username" required>
 
